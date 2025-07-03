@@ -6,71 +6,110 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin, Clock, Users, Building2, Plus, Search, Bookmark, ExternalLink, Filter } from "lucide-react";
+import { MapPin, Clock, Users, Building2, Plus, Search, Bookmark, ExternalLink, Filter, CheckCircle, Star, MessageCircle, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Navigation } from "@/components/layout/Navigation";
 
 interface Internship {
   id: string;
+  logo: string;
   title: string;
   company: string;
   type: 'remote' | 'onsite' | 'hybrid';
+  paid: boolean;
+  techStack: string[];
   duration: string;
-  postedBy: string;
-  postedByRole: 'teacher' | 'alumni';
+  postedBy: {
+    name: string;
+    role: 'teacher' | 'alumni';
+    year: string;
+    avatar: string;
+    verified: boolean;
+  };
   location: string;
   description: string;
   tags: string[];
   applyLink: string;
   isBookmarked: boolean;
   postedDate: string;
+  deadline: string;
+  recommended: boolean;
+  mostApplied: boolean;
+  applications: number;
 }
+
+// Deadline progress bar
+const getDeadlineProgress = (posted: string, deadline: string) => {
+  const start = new Date(posted).getTime();
+  const end = new Date(deadline).getTime();
+  const now = Date.now();
+  if (now >= end) return 100;
+  if (now <= start) return 0;
+  return Math.round(((now - start) / (end - start)) * 100);
+};
 
 const InternshipsPage = () => {
   const [internships, setInternships] = useState<Internship[]>([
     {
       id: '1',
+      logo: 'https://logo.clearbit.com/google.com',
       title: 'Frontend Developer Intern',
-      company: 'TechCorp',
+      company: 'Google',
       type: 'remote',
+      paid: true,
+      techStack: ['React', 'TypeScript', 'Tailwind'],
       duration: '3 months',
-      postedBy: 'Prof. Sarah Wilson',
-      postedByRole: 'teacher',
+      postedBy: {
+        name: 'Prof. Sarah Wilson',
+        role: 'teacher',
+        year: '2022',
+        avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+        verified: true
+      },
       location: 'Remote',
       description: 'Work on React applications and learn modern web development practices.',
-      tags: ['React', 'JavaScript', 'Remote'],
-      applyLink: 'https://techcorp.com/apply',
+      tags: ['Remote', 'Paid', 'React', 'TypeScript', '3 months'],
+      applyLink: 'https://careers.google.com',
       isBookmarked: false,
-      postedDate: '2024-07-01'
+      postedDate: '2024-07-01',
+      deadline: '2024-07-20',
+      recommended: true,
+      mostApplied: true,
+      applications: 120
     },
     {
       id: '2',
-      title: 'Data Science Intern',
-      company: 'DataFlow Inc',
+      logo: 'https://logo.clearbit.com/microsoft.com',
+      title: 'Backend Developer Intern',
+      company: 'Microsoft',
       type: 'onsite',
+      paid: false,
+      techStack: ['Node.js', 'Express', 'MongoDB'],
       duration: '6 months',
-      postedBy: 'Alex Chen (Alumni)',
-      postedByRole: 'alumni',
+      postedBy: {
+        name: 'Alex Chen',
+        role: 'alumni',
+        year: '2021',
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        verified: true
+      },
       location: 'Bangalore',
-      description: 'Analyze large datasets and build machine learning models.',
-      tags: ['Python', 'ML', 'Data Analysis'],
-      applyLink: 'https://dataflow.com/careers',
+      description: 'Build scalable backend APIs and work with cloud technologies.',
+      tags: ['Onsite', 'Unpaid', 'Node.js', 'MongoDB', '6 months'],
+      applyLink: 'https://careers.microsoft.com',
       isBookmarked: true,
-      postedDate: '2024-06-28'
+      postedDate: '2024-07-05',
+      deadline: '2024-07-25',
+      recommended: false,
+      mostApplied: false,
+      applications: 80
     }
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'remote' | 'onsite' | 'hybrid'>('all');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newInternship, setNewInternship] = useState({
-    title: '',
-    company: '',
-    type: 'remote' as const,
-    duration: '',
-    location: '',
-    description: '',
-    applyLink: ''
-  });
+  const [selected, setSelected] = useState<null | typeof internships[0]>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const filteredInternships = internships.filter(internship => {
     const matchesSearch = internship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,30 +125,11 @@ const InternshipsPage = () => {
     ));
   };
 
-  const addInternship = () => {
-    if (newInternship.title && newInternship.company) {
-      const internship: Internship = {
-        id: Date.now().toString(),
-        ...newInternship,
-        postedBy: 'You',
-        postedByRole: 'teacher',
-        tags: [newInternship.type, newInternship.company],
-        isBookmarked: false,
-        postedDate: new Date().toISOString().split('T')[0]
-      };
-      setInternships([...internships, internship]);
-      setNewInternship({
-        title: '',
-        company: '',
-        type: 'remote',
-        duration: '',
-        location: '',
-        description: '',
-        applyLink: ''
-      });
-      setIsDialogOpen(false);
-    }
+  const openModal = (internship: typeof internships[0]) => {
+    setSelected(internship);
+    setModalOpen(true);
   };
+  const closeModal = () => setModalOpen(false);
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -122,234 +142,172 @@ const InternshipsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-surface">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-text-primary mb-2">Internships & Placements</h1>
-          <p className="text-text-secondary">Discover opportunities shared by teachers and alumni</p>
-        </div>
-
-        {/* Search & Filters */}
-        <div className="flex flex-col gap-4 mb-8">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search internships, companies, or skills..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="gap-2 bg-gradient-primary text-white shadow-glow">
-                  <Plus className="h-4 w-4" />
-                  Post Opportunity
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Post New Internship</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="title">Position Title</Label>
-                      <Input
-                        id="title"
-                        value={newInternship.title}
-                        onChange={(e) => setNewInternship({ ...newInternship, title: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="company">Company</Label>
-                      <Input
-                        id="company"
-                        value={newInternship.company}
-                        onChange={(e) => setNewInternship({ ...newInternship, company: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="type">Type</Label>
-                      <select
-                        id="type"
-                        value={newInternship.type}
-                        onChange={(e) => setNewInternship({ ...newInternship, type: e.target.value as any })}
-                        className="w-full h-10 px-3 rounded-md border border-input bg-background"
-                      >
-                        <option value="remote">Remote</option>
-                        <option value="onsite">On-site</option>
-                        <option value="hybrid">Hybrid</option>
-                      </select>
-                    </div>
-                    <div>
-                      <Label htmlFor="duration">Duration</Label>
-                      <Input
-                        id="duration"
-                        value={newInternship.duration}
-                        onChange={(e) => setNewInternship({ ...newInternship, duration: e.target.value })}
-                        placeholder="e.g., 3 months"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        value={newInternship.location}
-                        onChange={(e) => setNewInternship({ ...newInternship, location: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={newInternship.description}
-                      onChange={(e) => setNewInternship({ ...newInternship, description: e.target.value })}
-                      rows={3}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="applyLink">Application Link</Label>
-                    <Input
-                      id="applyLink"
-                      value={newInternship.applyLink}
-                      onChange={(e) => setNewInternship({ ...newInternship, applyLink: e.target.value })}
-                      placeholder="https://..."
-                    />
-                  </div>
-                  
-                  <Button onClick={addInternship} className="w-full">
-                    Post Internship
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+      <Navigation />
+      <div className="container mx-auto px-2 md:px-4 py-8">
+        {/* Filter + Search Bar */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8 items-center bg-background/90 rounded-lg border border-border p-4">
+          <div className="flex-1 flex gap-2 items-center relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5 pointer-events-none" />
+            <Input
+              placeholder="Search internships, companies, or skills..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="pl-10 rounded-full bg-background border border-border focus:ring-2 focus:ring-primary/30 transition-all"
+            />
           </div>
-
-          {/* Type Filters */}
-          <div className="flex gap-2">
-            <Button
-              variant={typeFilter === 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTypeFilter('all')}
-              className="gap-2"
+          <div className="flex flex-wrap gap-2 items-center overflow-x-auto scrollbar-hide">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as any)}
+              className="h-9 px-4 rounded-full border border-border bg-background text-sm focus:ring-2 focus:ring-primary/20"
             >
-              <Filter className="h-4 w-4" />
-              All
-            </Button>
-            <Button
-              variant={typeFilter === 'remote' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTypeFilter('remote')}
+              <option value="all">All</option>
+              <option value="remote">Remote</option>
+              <option value="onsite">On-site</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
+            <select
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-9 px-4 rounded-full border border-border bg-background text-sm focus:ring-2 focus:ring-primary/20"
             >
-              Remote
-            </Button>
-            <Button
-              variant={typeFilter === 'onsite' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTypeFilter('onsite')}
-            >
-              On-site
-            </Button>
-            <Button
-              variant={typeFilter === 'hybrid' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTypeFilter('hybrid')}
-            >
-              Hybrid
-            </Button>
+              {/* Add search options here */}
+            </select>
           </div>
         </div>
 
-        {/* Internships Grid */}
+        {/* Internship Cards (summary only) */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredInternships.map((internship) => (
-            <Card key={internship.id} className="card-interactive group">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-xl mb-1">{internship.title}</CardTitle>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Building2 className="h-4 w-4" />
-                      {internship.company}
+            <div key={internship.id}>
+              <Card className="relative rounded-xl bg-background border border-border hover:border-primary/30 transition-all duration-200 cursor-pointer" onClick={() => openModal(internship)}>
+                <CardHeader className="pb-4 flex flex-row items-center gap-3">
+                  <img src={internship.logo} alt={internship.company} className="w-12 h-12 rounded-lg object-contain bg-white border" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                        {internship.title}
+                        {internship.recommended && <Badge className="bg-success/10 text-success border-success/20">Recommended</Badge>}
+                        {internship.mostApplied && <Badge className="bg-warning/10 text-warning border-warning/20">Popular</Badge>}
+                      </CardTitle>
+                      {internship.postedBy.verified && (
+                        <ShieldCheck className="w-4 h-4 text-primary" />
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {internship.tags.map(tag => (
+                        <Badge key={tag} className="rounded-full bg-muted text-muted-foreground border-muted-foreground/20 text-xs px-3 py-1">{tag}</Badge>
+                      ))}
                     </div>
                   </div>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    onClick={() => toggleBookmark(internship.id)}
-                    className={cn(
-                      "p-2",
-                      internship.isBookmarked && "text-primary"
-                    )}
+                    size="icon"
+                    className={cn("absolute top-3 right-3 z-10 rounded-full bg-background hover:bg-primary/10 transition-all", internship.isBookmarked ? "text-primary" : "")}
+                    onClick={e => { e.stopPropagation(); toggleBookmark(internship.id); }}
+                    aria-label="Save internship"
                   >
-                    <Bookmark className={cn("h-4 w-4", internship.isBookmarked && "fill-current")} />
+                    <Bookmark className="w-5 h-5" fill={internship.isBookmarked ? "currentColor" : "none"} />
                   </Button>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mt-3">
-                  <Badge className={getTypeColor(internship.type)}>
-                    {internship.type}
-                  </Badge>
-                  {internship.tags.slice(0, 2).map((tag) => (
-                    <Badge key={tag} variant="secondary">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    {internship.location}
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 mb-2">
+                    <img src={internship.postedBy.avatar} alt={internship.postedBy.name} className="w-7 h-7 rounded-full border" />
+                    <span className="text-sm font-medium text-text-primary">{internship.postedBy.name}</span>
+                    <span className="text-xs text-muted-foreground">({internship.postedBy.role}, {internship.postedBy.year})</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    {internship.duration}
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">{internship.location}</span>
+                    <Clock className="w-4 h-4 text-muted-foreground ml-4" />
+                    <span className="text-xs text-muted-foreground">{internship.duration}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4" />
-                    Posted by {internship.postedBy}
-                    <Badge variant={internship.postedByRole === 'teacher' ? 'default' : 'secondary'}>
-                      {internship.postedByRole}
-                    </Badge>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xs text-muted-foreground">Posted: {internship.postedDate}</span>
+                    <span className="text-xs text-muted-foreground ml-auto">Deadline: {internship.deadline}</span>
                   </div>
-                </div>
-                
-                <p className="text-sm text-text-secondary mb-4 line-clamp-2">
-                  {internship.description}
-                </p>
-                
-                <Button asChild className="w-full gap-2">
-                  <a href={internship.applyLink} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4" />
-                    Apply Now
-                  </a>
-                </Button>
-              </CardContent>
-            </Card>
+                  <div className="w-full h-2 bg-muted rounded-full mb-4 overflow-hidden">
+                    <div
+                      className="h-2 rounded-full bg-gradient-primary transition-all duration-700"
+                      style={{ width: `${getDeadlineProgress(internship.postedDate, internship.deadline)}%` }}
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full mt-2 border-primary text-primary hover:bg-primary/10 transition-all"
+                    onClick={e => { e.stopPropagation(); openModal(internship); }}
+                  >
+                    View Details
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           ))}
         </div>
 
-        {filteredInternships.length === 0 && (
-          <div className="text-center py-12">
-            <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-              <Building2 className="h-12 w-12 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold text-text-primary mb-2">No internships found</h3>
-            <p className="text-text-secondary">Try adjusting your search or filters</p>
-          </div>
-        )}
+        {/* Internship Details Modal */}
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+          <DialogContent className="max-w-2xl">
+            {selected && (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-3">
+                    <img src={selected.logo} alt={selected.company} className="w-10 h-10 rounded-lg object-contain bg-white border" />
+                    <span>{selected.title}</span>
+                    {selected.recommended && <Badge className="bg-success/10 text-success border-success/20">Recommended</Badge>}
+                    {selected.mostApplied && <Badge className="bg-warning/10 text-warning border-warning/20">Popular</Badge>}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <img src={selected.postedBy.avatar} alt={selected.postedBy.name} className="w-7 h-7 rounded-full border" />
+                  <span className="text-sm font-medium text-text-primary">{selected.postedBy.name}</span>
+                  <span className="text-xs text-muted-foreground">({selected.postedBy.role}, {selected.postedBy.year})</span>
+                  {selected.postedBy.verified && <ShieldCheck className="w-4 h-4 text-primary ml-2" />}
+                </div>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {selected.tags.map(tag => (
+                    <Badge key={tag} className="rounded-full bg-muted text-muted-foreground border-muted-foreground/20 text-xs px-3 py-1">{tag}</Badge>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">{selected.location}</span>
+                  <Clock className="w-4 h-4 text-muted-foreground ml-4" />
+                  <span className="text-xs text-muted-foreground">{selected.duration}</span>
+                </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs text-muted-foreground">Posted: {selected.postedDate}</span>
+                  <span className="text-xs text-muted-foreground ml-auto">Deadline: {selected.deadline}</span>
+                </div>
+                <div className="w-full h-2 bg-muted rounded-full mb-4 overflow-hidden">
+                  <div
+                    className="h-2 rounded-full bg-gradient-primary transition-all duration-700"
+                    style={{ width: `${getDeadlineProgress(selected.postedDate, selected.deadline)}%` }}
+                  />
+                </div>
+                <div className="mb-4 text-text-secondary whitespace-pre-line">
+                  {selected.description}
+                </div>
+                <Button
+                  asChild
+                  className="w-full bg-primary/90 text-white hover:bg-primary/80 transition-colors mb-2"
+                >
+                  <a href={selected.applyLink} target="_blank" rel="noopener noreferrer">
+                    Apply
+                    <ExternalLink className="w-4 h-4 ml-1" />
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full border-primary text-primary hover:bg-primary/10 transition-all"
+                  onClick={closeModal}
+                >
+                  Close
+                </Button>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

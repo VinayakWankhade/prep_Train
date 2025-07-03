@@ -19,7 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Inter', 'system-ui', 'sans-serif'],
+				sans: ["'MontserratVariable'", 'Montserrat', 'Inter', 'system-ui', 'sans-serif'],
+				serif: ["'RobotoSlabVariable'", 'Roboto Slab', 'serif'],
 				mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
 			},
 			colors: {
@@ -179,5 +180,17 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		// @ts-ignore
+		require("tailwindcss-animate"),
+		// @ts-ignore
+		require('@tailwindcss/typography'),
+		function ({ addUtilities }) {
+			addUtilities({
+				'.text-shadow': {
+					'text-shadow': '0 1px 2px rgba(0,0,0,0.12), 0 1px 1px rgba(0,0,0,0.24)',
+				},
+			});
+		}
+	],
 } satisfies Config;

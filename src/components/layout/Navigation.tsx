@@ -2,16 +2,31 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Menu, X, BookOpen, Target, Brain, Calendar, Users, PenTool } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Menu, X, BookOpen, Target, Brain, Calendar, Users, PenTool, Sun, Moon } from "lucide-react";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(() =>
+    typeof window !== 'undefined' ? document.documentElement.classList.contains('dark') : false
+  );
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      return next;
+    });
+  };
 
   const navItems = [
     { href: "/tasks", label: "Tasks", icon: Target },
     { href: "/focus", label: "Focus", icon: Brain },
     { href: "/practice", label: "Practice", icon: BookOpen },
-    { href: "/counseling", label: "Counseling", icon: Calendar },
     { href: "/internships", label: "Internships", icon: Users },
     { href: "/blogs", label: "Blogs", icon: PenTool },
   ];
@@ -48,16 +63,26 @@ export const Navigation = () => {
                 </Link>
               );
             })}
+            {/* Color Mode Toggle */}
+            <div className="flex items-center ml-4">
+              <Sun className={`w-4 h-4 mr-1 ${!darkMode ? 'text-yellow-400' : 'text-muted-foreground'}`} />
+              <Switch checked={darkMode} onCheckedChange={toggleDarkMode} aria-label="Toggle dark mode" />
+              <Moon className={`w-4 h-4 ml-1 ${darkMode ? 'text-blue-400' : 'text-muted-foreground'}`} />
+            </div>
           </div>
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-3">
-            <Button variant="outline" size="sm">
-              Sign In
-            </Button>
-            <Button size="sm" className="bg-gradient-primary">
-              Get Started
-            </Button>
+            <Link to="/signin">
+              <Button variant="outline" size="sm">
+                Sign In
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button size="sm" className="bg-gradient-primary">
+                Get Started
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -89,13 +114,23 @@ export const Navigation = () => {
                   </Link>
                 );
               })}
+              {/* Color Mode Toggle for Mobile */}
+              <div className="flex items-center pt-4 border-t border-border space-x-2">
+                <Sun className={`w-4 h-4 ${!darkMode ? 'text-yellow-400' : 'text-muted-foreground'}`} />
+                <Switch checked={darkMode} onCheckedChange={toggleDarkMode} aria-label="Toggle dark mode" />
+                <Moon className={`w-4 h-4 ${darkMode ? 'text-blue-400' : 'text-muted-foreground'}`} />
+              </div>
               <div className="pt-4 border-t border-border space-y-2">
-                <Button variant="outline" className="w-full">
-                  Sign In
-                </Button>
-                <Button className="w-full bg-gradient-primary">
-                  Get Started
-                </Button>
+                <Link to="/signin">
+                  <Button variant="outline" className="w-full">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button className="w-full bg-gradient-primary">
+                    Get Started
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

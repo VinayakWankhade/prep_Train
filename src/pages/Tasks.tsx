@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Calendar, Trash2, Check, Clock, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Navigation } from "@/components/layout/Navigation";
 
 interface Task {
   id: string;
@@ -67,6 +68,7 @@ const TasksPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-surface">
+      <Navigation />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

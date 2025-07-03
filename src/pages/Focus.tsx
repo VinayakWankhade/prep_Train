@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Play, Pause, RotateCcw, Target, Clock, Flame, Shield, Eye, History } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Navigation } from "@/components/layout/Navigation";
 
 interface FocusSession {
   id: string;
@@ -106,6 +107,7 @@ const FocusPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-surface dark:bg-gradient-surface">
+      <Navigation />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 text-center">

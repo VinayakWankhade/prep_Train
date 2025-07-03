@@ -14,10 +14,10 @@ export const HeroSection = () => {
       </div>
 
       {/* Main Heading */}
-      <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-balance">
+      <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-balance antialiased text-shadow tracking-tight">
         <span className="text-text-primary">Empower Your</span>
         <br />
-        <span className="bg-gradient-primary bg-clip-text text-transparent">
+        <span className="bg-gradient-primary bg-clip-text text-transparent antialiased text-shadow">
           Academic Journey
         </span>
       </h1>

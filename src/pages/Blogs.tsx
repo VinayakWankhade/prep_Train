@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PenTool, Search, Clock, User, Plus, Eye, Heart, MessageCircle, BookOpen, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Navigation } from "@/components/layout/Navigation";
 
 interface Blog {
   id: string;
@@ -148,6 +149,7 @@ const BlogsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-surface">
+      <Navigation />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BookOpen, Brain, Award, Timer, Search, Filter, Star, TrendingUp, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Navigation } from "@/components/layout/Navigation";
 
 interface Question {
   id: string;
@@ -125,6 +126,7 @@ const PracticePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-surface">
+      <Navigation />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">

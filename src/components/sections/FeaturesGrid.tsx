@@ -41,14 +41,6 @@ const features = [
     bgColor: "bg-success/10"
   },
   {
-    icon: Calendar,
-    title: "Expert Counseling",
-    description: "Book one-on-one sessions with mentors and teachers for personalized guidance and career advice.",
-    badge: "Mentorship",
-    color: "text-warning",
-    bgColor: "bg-warning/10"
-  },
-  {
     icon: Users,
     title: "Internship Hub",
     description: "Discover exclusive internship and placement opportunities shared by alumni and industry professionals.",
