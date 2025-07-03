@@ -24,7 +24,8 @@ export const Navigation = () => {
   };
 
   const navItems = [
-    { href: "/tasks", label: "Tasks", icon: Target },
+    { href: "/task-manager", label: "Task Manager", icon: Target },
+    { href: "/tasks", label: "Tasks", icon: Calendar },
     { href: "/focus", label: "Focus", icon: Brain },
     { href: "/practice", label: "Practice", icon: BookOpen },
     { href: "/internships", label: "Internships", icon: Users },
